@@ -43,7 +43,7 @@ pub fn run(input: Vec<i32>) -> Vec<(i32,i32,i32)> {
         }
         i += 1;
     }
-    result
+    result.iter().map(|&(i, j, k)| (input[i as usize], input[j as usize], input[k as usize])).collect()
 }
 
 mod tests {
@@ -56,7 +56,8 @@ mod tests {
         assert_eq!(run(vec![0]), vec![]);
         assert_eq!(run(vec![1,2]), vec![]);
         assert_eq!(run(vec![1,2,3]), vec![]);
-        assert_eq!(run(vec![-1,0,1]), vec![(0,1,2)]);
-        assert_eq!(run(vec![-2,-1,-1,0,2]), vec![(0,3,4), (1,2,4)]);
+        assert_eq!(run(vec![-1,0,1]), vec![(-1,0,1)]);
+        assert_eq!(run(vec![-2,-1,-1,0,2]), vec![(-2,0,2), (-1,-1,2)]);
+        assert_eq!(run(vec![0,0,1,-1,1,-1]), vec![(-1,0,1)]);
     }
 }
