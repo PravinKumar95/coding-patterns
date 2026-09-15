@@ -1,5 +1,3 @@
-use std::error::Error;
-
 #[derive(Debug)]
 struct SNode {
     data: i32,
@@ -87,6 +85,18 @@ impl SinglyLinkedList {
             .next = next;
         self.count += 1;
     }
+    fn reverse(&mut self) {
+        let mut head = self.head.take();
+        let mut prev = None;
+        let mut curr = head;
+        while let Some(mut node) = curr {
+            let next = node.next.take();
+            node.next = prev.take();
+            prev = Some(node);
+            curr = next;
+        }
+        self.head = prev;
+    }
     fn pop(&mut self) -> i32 {
         let mut curr = &mut self.head;
         if curr.is_none() {
@@ -127,5 +137,15 @@ mod tests {
         let mut linked_list = SinglyLinkedList::new();
         linked_list.insert(10, 10);
         assert_eq!(linked_list.pop(), 10);
+    }
+    #[test]
+    fn test_singly_linked_list_reverse() {
+        let mut linked_list = SinglyLinkedList::new();
+        linked_list.insert(10, 10);
+        linked_list.append(30);
+        linked_list.append(40);
+        linked_list.insert(20, 1);
+        linked_list.reverse();
+        println!("{:?}", linked_list);
     }
 }
