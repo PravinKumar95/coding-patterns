@@ -1,112 +1,58 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type Link = Option<Rc<RefCell<SNode>>>;
+
 #[derive(Debug)]
 struct SNode {
     data: i32,
-    next: Option<Box<SNode>>,
+    next: Option<usize>,
 }
 
 #[derive(Debug)]
 struct SinglyLinkedList {
-    head: Option<Box<SNode>>,
-    count: usize,
+    nodes: Vec<SNode>,
 }
 
 impl SinglyLinkedList {
     fn new() -> Self {
-        SinglyLinkedList {
-            head: None,
-            count: 0,
-        }
+        SinglyLinkedList { nodes: vec![] }
     }
     fn append(&mut self, val: i32) {
-        let mut curr = &mut self.head;
-        if curr.is_none() {
-            *curr = Some(Box::new(SNode {
-                data: val,
-                next: None,
-            }));
-            self.count += 1;
-            return;
-        }
-        while !curr.is_none() && !curr.as_ref().unwrap().next.is_none() {
-            curr = &mut curr.as_deref_mut().unwrap().next;
-        }
-        println!("curr: {:?}", &curr);
-        curr.as_deref_mut().unwrap().next = Some(Box::new(SNode {
+        let new_node = SNode {
             data: val,
             next: None,
-        }));
-        self.count += 1;
+        };
+        if self.nodes.is_empty() {
+            self.nodes.push(new_node);
+            return;
+        }
+        self.nodes.push(new_node);
     }
     fn insert(&mut self, val: i32, index: usize) {
-        let mut head = &mut self.head.take();
-        if head.is_none() {
-            head.replace(Box::new(SNode {
-                data: val,
-                next: None,
-            }));
-            self.count += 1;
-            self.head = head.take();
-            return;
-        }
-        let mut new_node = Some(Box::new(SNode {
+        let new_node = SNode {
             data: val,
             next: None,
-        }));
-        if index == 0 {
-            new_node
-                .as_deref_mut()
-                .unwrap()
-                .next
-                .replace(head.take().unwrap());
-            head.replace(new_node.unwrap());
-            self.head = head.take();
+        };
+        if self.nodes.is_empty() {
+            self.nodes.push(new_node);
             return;
         }
-        self.head = head.take();
-        let mut curr = &mut self.head;
-        let mut curr_idx = 1;
-        while !curr.is_none() && curr_idx < index {
-            curr = &mut curr.as_deref_mut().unwrap().next;
-            curr_idx += 1;
-        }
-        println!("curr: {:?}", &curr);
-        if curr.is_none() {
-            let _ = curr.insert(new_node.unwrap());
-            self.count += 1;
+        if index >= self.nodes.len() {
+            self.nodes.push(new_node);
             return;
         }
-        let next = curr.as_deref_mut().unwrap().next.take();
-        curr.as_deref_mut().unwrap().next = new_node;
-        curr.as_deref_mut()
-            .unwrap()
-            .next
-            .as_deref_mut()
-            .unwrap()
-            .next = next;
-        self.count += 1;
+        self.nodes.insert(index, new_node);
     }
     fn reverse(&mut self) {
-        let mut head = self.head.take();
-        let mut prev = None;
-        let mut curr = head;
-        while let Some(mut node) = curr {
-            let next = node.next.take();
-            node.next = prev.take();
-            prev = Some(node);
-            curr = next;
-        }
-        self.head = prev;
+        self.nodes.reverse();
     }
     fn pop(&mut self) -> i32 {
-        let mut curr = &mut self.head;
-        if curr.is_none() {
-            return 0;
-        }
-        while !curr.is_none() && !curr.as_ref().unwrap().next.is_none() {
-            curr = &mut curr.as_deref_mut().unwrap().next;
-        }
-        let out = curr.take();
-        out.unwrap().data
+        self.nodes.pop().unwrap().data
+    }
+    fn remove_kth_last(&mut self, index: usize) -> i32 {
+        let node = self.nodes.remove(self.nodes.len() - 1 - index);
+        return node.data;
     }
 }
 
@@ -146,6 +92,16 @@ mod tests {
         linked_list.append(40);
         linked_list.insert(20, 1);
         linked_list.reverse();
+        println!("{:?}", linked_list);
+    }
+    #[test]
+    fn test_singly_linked_list_remove_kth_last() {
+        let mut linked_list = SinglyLinkedList::new();
+        linked_list.insert(10, 10);
+        linked_list.append(30);
+        linked_list.append(40);
+        linked_list.insert(20, 1);
+        linked_list.remove_kth_last(1);
         println!("{:?}", linked_list);
     }
 }
