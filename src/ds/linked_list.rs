@@ -1,24 +1,27 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
-type Link = Option<Rc<RefCell<SNode>>>;
+pub type Link = Option<Rc<RefCell<SNode>>>;
 
 #[derive(Debug)]
-struct SNode {
+pub struct SNode {
     data: i32,
-    next: Link,
+    pub next: Link,
 }
 
 #[derive(Debug)]
-struct SinglyLinkedList {
+pub struct SinglyLinkedList {
     head: Link,
 }
 
 impl SinglyLinkedList {
-    fn new() -> Self {
+    pub fn new() -> Self {
         SinglyLinkedList { head: None }
     }
-    fn append(&mut self, val: i32) {
+    pub fn peek(&self) -> Option<Rc<RefCell<SNode>>> {
+        self.head.clone()
+    }
+    pub fn append(&mut self, val: i32) {
         let new_node = Rc::new(RefCell::new(SNode {
             data: val,
             next: None,
@@ -34,7 +37,19 @@ impl SinglyLinkedList {
             self.head = Some(new_node);
         }
     }
-    fn insert(&mut self, val: i32, index: usize) {
+    pub fn append_node(&mut self, new_node: Rc<RefCell<SNode>>) {
+        if let Some(node) = self.head.as_mut() {
+            let mut curr = node.clone();
+            while !curr.borrow().next.is_none() {
+                let next = curr.borrow().next.clone();
+                curr = next.unwrap();
+            }
+            curr.borrow_mut().next = Some(new_node);
+        } else {
+            self.head = Some(new_node);
+        }
+    }
+    pub fn insert(&mut self, val: i32, index: usize) {
         let new_node = Rc::new(RefCell::new(SNode {
             data: val,
             next: None,
@@ -64,7 +79,7 @@ impl SinglyLinkedList {
             self.head = Some(new_node)
         }
     }
-    fn pop(&mut self) -> i32 {
+    pub fn pop(&mut self) -> i32 {
         if let Some(node) = self.head.as_mut() {
             let mut curr = node.clone();
             let mut prev = curr.clone();
@@ -78,7 +93,7 @@ impl SinglyLinkedList {
         }
         0
     }
-    fn remove_kth_last(&mut self, index: usize) -> i32 {
+    pub fn remove_kth_last(&mut self, index: usize) -> i32 {
         if index == 0 {
             return 0;
         }
