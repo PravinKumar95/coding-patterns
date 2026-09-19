@@ -1,7 +1,7 @@
 use crate::ds::linked_list::SinglyLinkedList;
 use std::{ptr, rc::Rc};
 
-fn run(list1: SinglyLinkedList, list2: SinglyLinkedList) -> bool {
+fn run(list1: SinglyLinkedList<i32>, list2: SinglyLinkedList<i32>) -> bool {
     let mut ptr_1 = list1.peek().clone();
     let mut ptr_2 = list2.peek().clone();
     loop {
